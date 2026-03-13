@@ -195,11 +195,21 @@ const categoriasPadrao={
 "Bebidas":[
 {name:"Achocolatado", preco:5.0},
 {name:"Café com Leite", preco:4.5},
-{name:"Café", preco:3.5}
+{name:"Café", preco:3.5},
+{name:"Coca Cola Lata", preco:5.0},
+{name:"Guaraná Mineiro Lata", preco:5.0},
+{name:"Coca Cola Mini", preco:3.5},
+{name:"Guaraná Mineiro Baby", preco:3.5},
+{name:"Fanta Laranja Mini", preco:3.5},
+{name:"Fanta Uva Mini", preco:3.5}
 ],
 "Complementos":[
 {name:"Ovo Frito", preco:3.0},
-{name:"Queijo Coalho", preco:4.5}
+{name:"Calabresa", preco:4.0},
+{name:"Queijo", preco:4.0},
+{name:"Frango", preco:4.5},
+{name:"Presunto", preco:4.0},
+{name:"Carne Seca", preco:5.0}
 ],
 "Vinagrete":[
 {name:"Sim", preco:0},
@@ -229,20 +239,38 @@ document.getElementById('modal-titulo').innerText=itemAtual.nome;
 
 let htmlCategorias="";
 for(const cat in categoriasPadrao){
-let itensCat = categoriasPadrao[cat];
-let itensHTML = itensCat.map(i=>`
-<div class="opcao-item">
-<label><input type="checkbox" class="chk-extra" data-nome="${i.name}" data-preco="${i.preco}"> ${i.name} ${cat!="Vinagrete"?"":""}</label>
-<span>${cat!="Vinagrete"?'+R$ '+i.preco.toFixed(2):''}</span>
-</div>`).join('');
+    let itensCat = categoriasPadrao[cat];
+    let maxItens = cat==="Complementos"?2:999; 
+    let itensHTML = itensCat.map(i=>`
+        <div class="opcao-item">
+            <label>
+                <input type="checkbox" class="chk-extra" data-nome="${i.name}" data-preco="${i.preco}" data-categoria="${cat}" data-max="${maxItens}">
+                ${i.name}
+            </label>
+            <span>${cat!="Vinagrete"?'+R$ '+i.preco.toFixed(2):''}</span>
+        </div>`).join('');
 
-htmlCategorias+=`
-<div class="categoria-header" onclick="toggleCategoria(this)">${cat} <span>▼</span></div>
-<div class="categoria-itens">${itensHTML}</div>`;
+    htmlCategorias+=`
+        <div class="categoria-header" onclick="toggleCategoria(this)">${cat} <span>▼</span></div>
+        <div class="categoria-itens">${itensHTML}</div>`;
 }
 
 document.getElementById('secao-extras').innerHTML=htmlCategorias;
 document.getElementById('modal-opcionais').style.display='flex';
+
+document.querySelectorAll('.chk-extra').forEach(chk=>{
+    chk.addEventListener('change', function(){
+        let cat = this.dataset.categoria;
+        let max = parseInt(this.dataset.max);
+        if(max && cat==="Complementos"){
+            let marcados = document.querySelectorAll('.chk-extra[data-categoria="Complementos"]:checked');
+            if(marcados.length > max){
+                this.checked = false;
+                alert(`Você só pode selecionar até ${max} complementos por produto!`);
+            }
+        }
+    });
+});
 }
 
 function toggleCategoria(el){
@@ -250,9 +278,7 @@ const itens=el.nextElementSibling;
 itens.style.display=itens.style.display==="block"?"none":"block";
 }
 
-function fecharModal(){
-document.getElementById('modal-opcionais').style.display='none';
-}
+function fecharModal(){ document.getElementById('modal-opcionais').style.display='none'; }
 
 function confirmarAdicao(){
 let vE=0;
@@ -284,9 +310,7 @@ carrinho.map(i=>`<div><strong>${i.nome}</strong> - R$ ${i.total.toFixed(2)}</div
 document.getElementById('checkout').style.display='block';
 }
 
-function fecharCheckout(){
-document.getElementById('checkout').style.display='none';
-}
+function fecharCheckout(){ document.getElementById('checkout').style.display='none'; }
 
 function enviarWhatsApp(event){
 const n=document.getElementById('nome-cliente').value;
