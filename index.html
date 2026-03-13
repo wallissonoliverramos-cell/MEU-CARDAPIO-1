@@ -1,232 +1,366 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuscuz & Tapioca Delivery</title>
-    <style>
-        :root { --primary: #ea1d2c; --bg: #f7f7f7; --green: #25d366; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
-        body { background: var(--bg); padding-bottom: 100px; }
-        header { background: var(--primary); color: white; padding: 20px; text-align: center; border-radius: 0 0 20px 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .container { max-width: 500px; margin: auto; padding: 15px; }
-        h2 { margin: 20px 0 10px; font-size: 18px; color: #444; border-left: 4px solid var(--primary); padding-left: 10px; }
-        .item-card { background: white; border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); cursor: pointer; border: 1px solid #eee; }
-        .price { color: #2e7d32; font-weight: bold; }
-        #modal-opcionais { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: flex-end; justify-content: center; }
-        .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 25px 25px 0 0; padding: 25px; max-height: 90vh; overflow-y: auto; }
-        .modal-secao { margin-bottom: 15px; }
-        .modal-secao h4 { background: #fdf2f2; padding: 8px; color: var(--primary); font-size: 13px; border-radius: 8px; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; }
-        .opcao-item { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #f0f0f0; align-items: center; }
-        .obs-box { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; margin-top: 10px; font-size: 14px; min-height: 60px; }
-        .footer { position: fixed; bottom: 0; background: white; width: 100%; padding: 15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 100; }
-        .btn-modal { flex: 1; padding: 16px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; color: white; }
-        .btn-voltar-modal { background: #666; }
-        .btn-confirmar-modal { background: var(--green); }
-        #checkout { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999; padding: 20px; overflow-y: auto; }
-        .input-estilizado { width:100%; padding:14px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px; font-size: 16px; }
-        #area-troco { display: none; background: #fffbe6; padding: 15px; border-radius: 12px; border: 1px solid #ffe58f; margin-bottom: 15px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cuscuz & Tapioca Delivery</title>
+
+<style>
+:root { --primary:#ea1d2c; --bg:#f7f7f7; --green:#25d366; }
+*{ box-sizing:border-box; font-family:'Segoe UI',sans-serif; margin:0; padding:0; }
+
+body{ background:var(--bg); padding-bottom:100px; }
+
+header{
+background:var(--primary);
+color:white;
+padding:20px;
+text-align:center;
+border-radius:0 0 20px 20px;
+}
+
+.container{
+max-width:500px;
+margin:auto;
+padding:15px;
+}
+
+.item-card{
+background:white;
+border-radius:15px;
+padding:15px;
+margin-bottom:12px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+box-shadow:0 2px 8px rgba(0,0,0,0.05);
+cursor:pointer;
+}
+
+.price{ color:#2e7d32; font-weight:bold; }
+
+#modal-opcionais{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+z-index:1000;
+align-items:flex-end;
+justify-content:center;
+}
+
+.modal-content{
+background:white;
+width:100%;
+max-width:500px;
+border-radius:25px 25px 0 0;
+padding:25px;
+max-height:90vh;
+overflow-y:auto;
+}
+
+.opcao-item{
+display:flex;
+justify-content:space-between;
+padding:10px 5px;
+border-bottom:1px solid #f0f0f0;
+}
+
+.footer{
+position:fixed;
+bottom:0;
+background:white;
+width:100%;
+padding:15px;
+border-top:1px solid #eee;
+display:flex;
+justify-content:space-between;
+align-items:center;
+z-index:100;
+}
+
+.btn-modal{
+flex:1;
+padding:16px;
+border:none;
+border-radius:12px;
+font-weight:bold;
+cursor:pointer;
+color:white;
+text-align:center;
+text-decoration:none;
+}
+
+#checkout{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:white;
+z-index:999;
+padding:20px;
+overflow-y:auto;
+}
+
+.input-estilizado{
+width:100%;
+padding:14px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:10px;
+font-size:16px;
+}
+</style>
 </head>
+
 <body>
 
 <div id="tela-principal">
-    <header><h1>Cuscuz & Tapioca Delivery ☕</h1></header>
-    <div class="container">
-        <h2>🌽 Cuscuz</h2>
-        <div id="lista-cuscuz"></div>
-        <h2>⚪ Tapiocas</h2>
-        <div id="lista-tapioca"></div>
-    </div>
-    <div class="footer">
-        <div>Total: <strong id="total-txt">R$ 0,00</strong></div>
-        <button style="background:var(--primary); color:white; border:none; padding:12px 20px; border-radius:10px; font-weight:bold; cursor:pointer;" onclick="abrirCheckout()">Ver Carrinho ➡</button>
-    </div>
+
+<header>
+<h1>Cuscuz & Tapioca Delivery ☕</h1>
+</header>
+
+<div class="container">
+<div id="lista-produtos"></div>
+</div>
+
+<div class="footer">
+<div>Total: <strong id="total-txt">R$ 0,00</strong></div>
+<button class="btn-modal" style="background:var(--primary); padding:10px 20px;" onclick="abrirCheckout()">Ver Carrinho ➡</button>
+</div>
+
 </div>
 
 <div id="modal-opcionais">
-    <div class="modal-content">
-        <h3 id="modal-titulo">Personalizar</h3>
-        <div class="modal-secao" id="area-vinagrete">
-            <h4>🍅 Vinagrete (Grátis)</h4>
-            <div id="secao-vinagrete"></div>
-        </div>
-        <div class="modal-secao">
-            <h4>🧀 Complementos</h4>
-            <div id="secao-complementos"></div>
-        </div>
-        <div class="modal-secao">
-            <h4>🥤 Bebidas</h4>
-            <div id="secao-bebidas"></div>
-        </div>
-        <div class="modal-secao">
-            <h4>📝 Observação</h4>
-            <textarea id="obs-item" class="obs-box" placeholder="Ex: tirar a cebola..."></textarea>
-        </div>
-        <div style="display:flex; gap:10px;">
-            <button class="btn-modal btn-voltar-modal" onclick="fecharModal()">Voltar</button>
-            <button class="btn-modal btn-confirmar-modal" onclick="confirmarAdicao()">Adicionar</button>
-        </div>
-    </div>
+<div class="modal-content">
+
+<h3 id="modal-titulo">Personalizar</h3>
+
+<div id="secao-extras" style="margin:20px 0;"></div>
+
+<textarea id="obs-item" class="input-estilizado" placeholder="Alguma observação?"></textarea>
+
+<div style="display:flex; gap:10px;">
+<button class="btn-modal" style="background:var(--primary);" onclick="fecharModal()">Voltar</button>
+<button class="btn-modal" style="background:var(--green);" onclick="confirmarAdicao()">Adicionar</button>
+</div>
+
+</div>
 </div>
 
 <div id="checkout">
-    <button class="btn-modal btn-voltar-modal" style="width:100%; margin-bottom:20px;" onclick="fecharCheckout()">⬅ Adicionar mais itens</button>
-    <h2>Resumo do Pedido</h2>
-    <div id="resumo" style="background:#f9f9f9; padding:15px; border-radius:12px; margin: 15px 0; border: 1px solid #eee;"></div>
-    
-    <input type="text" id="nome" class="input-estilizado" placeholder="Seu Nome">
-    <input type="text" id="endereco" class="input-estilizado" placeholder="Endereço Completo">
-    
-    <select id="pagamento" class="input-estilizado" onchange="verificarTroco()">
-        <option value="PIX">PIX</option>
-        <option value="Cartão">Cartão (Maquininha)</option>
-        <option value="Dinheiro">Dinheiro</option>
-    </select>
 
-    <div id="area-troco">
-        <label style="font-size: 13px; font-weight:bold;">Troco para quanto?</label>
-        <input type="number" id="valor-recebido" class="input-estilizado" oninput="calcularTroco()" placeholder="Ex: 50">
-        <p id="info-troco" style="font-weight:bold; color: #2e7d32;"></p>
-    </div>
+<button class="btn-modal" style="background:var(--primary); width:100%; margin-bottom:20px;" onclick="fecharCheckout()">⬅ Adicionar mais itens</button>
 
-    <button class="btn-modal btn-confirmar-modal" style="width: 100%; font-size: 18px;" onclick="enviarWhatsApp()">🚀 Finalizar no WhatsApp</button>
+<h2>Resumo do Pedido</h2>
+
+<div id="resumo" style="background:#f9f9f9; padding:15px; border-radius:12px; margin:15px 0;"></div>
+
+<input type="text" id="nome-cliente" class="input-estilizado" placeholder="Seu Nome">
+
+<input type="text" id="end-cliente" class="input-estilizado" placeholder="Endereço Completo">
+
+<select id="pag-cliente" class="input-estilizado" onchange="document.getElementById('area-troco').style.display=(this.value=='Dinheiro'?'block':'none')">
+<option value="PIX">PIX</option>
+<option value="Cartão">Cartão</option>
+<option value="Dinheiro">Dinheiro</option>
+</select>
+
+<div id="area-troco" style="display:none;">
+<input type="number" id="valor-troco" class="input-estilizado" placeholder="Troco para quanto?">
+</div>
+
+<a id="link-whatsapp"
+href="#"
+class="btn-modal"
+style="background:var(--green); display:block; width:100%; font-size:18px;"
+onclick="enviarWhatsApp(event)">
+🚀 Finalizar no WhatsApp
+</a>
+
 </div>
 
 <script>
-    const produtos = [
-        { id: 1, cat: 'cuscuz', nome: "Cuscuz Carne Seca", preco: 18.0 },
-        { id: 2, cat: 'cuscuz', nome: "Cuscuz de Frango", preco: 15.0 },
-        { id: 3, cat: 'tapioca', nome: "Tapioca de Queijo", preco: 12.0 },
-        { id: 4, cat: 'tapioca', nome: "Tapioca Cartola", preco: 14.0 }
-    ];
 
-    const vinagreteOpc = [{ nome: "Vinagrete", preco: 0.0 }];
-    const complementosOpc = [{ nome: "Ovo Frito", preco: 3.0 }, { nome: "Queijo Coalho", preco: 4.5 }];
-    const bebidasOpc = [{ nome: "Café 300ml", preco: 5.0 }, { nome: "Suco Natural", preco: 8.0 }];
+const produtos=[
+{id:1,nome:"Cuscuz Carne Seca",preco:18.0},
+{id:2,nome:"Cuscuz de Frango",preco:15.0},
+{id:3,nome:"Tapioca de Queijo",preco:12.0},
+{id:4,nome:"Tapioca Cartola",preco:14.0}
+];
 
-    let carrinho = [];
-    let itemAtual = null;
+const categorias={
 
-    function renderizar() {
-        ['cuscuz', 'tapioca'].forEach(cat => {
-            document.getElementById('lista-' + cat).innerHTML = produtos.filter(p => p.cat === cat).map(p => `
-                <div class="item-card" onclick="abrirModal(${p.id})">
-                    <div><strong>${p.nome}</strong><br><span class="price">R$ ${p.preco.toFixed(2).replace('.',',')}</span></div>
-                    <button style="background:var(--primary); color:white; border:none; width:35px; height:35px; border-radius:50%; font-size: 20px;">+</button>
-                </div>
-            `).join('');
-        });
-    }
+vinagrete:[
+{nome:"Com Vinagrete",preco:0},
+{nome:"Sem Vinagrete",preco:0}
+],
 
-    function abrirModal(id) {
-        itemAtual = produtos.find(p => p.id === id);
-        document.getElementById('modal-titulo').innerText = itemAtual.nome;
-        document.getElementById('obs-item').value = "";
-        document.getElementById('area-vinagrete').style.display = itemAtual.cat === 'cuscuz' ? 'block' : 'none';
-        
-        const gerarHtml = (lista) => lista.map(opt => `
-            <div class="opcao-item">
-                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-                    <input type="checkbox" data-preco="${opt.preco}" data-nome="${opt.nome}" class="chk-extra"> ${opt.nome}
-                </label>
-                <span>${opt.preco === 0 ? 'Grátis' : '+ R$ ' + opt.preco.toFixed(2).replace('.',',')}</span>
-            </div>
-        `).join('');
-        
-        document.getElementById('secao-vinagrete').innerHTML = gerarHtml(vinagreteOpc);
-        document.getElementById('secao-complementos').innerHTML = gerarHtml(complementosOpc);
-        document.getElementById('secao-bebidas').innerHTML = gerarHtml(bebidasOpc);
-        document.getElementById('modal-opcionais').style.display = 'flex';
-    }
+bebidas:[
+{nome:"Coca-Cola Lata",preco:6},
+{nome:"Guaraná Lata",preco:5}
+],
 
-    function fecharModal() { document.getElementById('modal-opcionais').style.display = 'none'; }
+complementos:[
+{nome:"Ovo Frito",preco:3},
+{nome:"Queijo Coalho",preco:4.5}
+]
 
-    function confirmarAdicao() {
-        const extras = [];
-        let valorExtras = 0;
-        document.querySelectorAll('.chk-extra:checked').forEach(chk => {
-            extras.push(chk.dataset.nome);
-            valorExtras += parseFloat(chk.dataset.preco);
-        });
+};
 
-        carrinho.push({
-            nome: itemAtual.nome,
-            totalItem: itemAtual.preco + valorExtras,
-            detalhes: extras.join(', '),
-            obs: document.getElementById('obs-item').value
-        });
-        fecharModal();
-        atualizarTotal();
-    }
+let carrinho=[];
+let itemAtual=null;
 
-    function atualizarTotal() {
-        const total = carrinho.reduce((sum, i) => sum + i.totalItem, 0);
-        document.getElementById('total-txt').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-    }
+function renderizar(){
+document.getElementById('lista-produtos').innerHTML=
+produtos.map(p=>`
+<div class="item-card" onclick="abrirModal(${p.id})">
+<div>
+<strong>${p.nome}</strong><br>
+<span class="price">R$ ${p.preco.toFixed(2)}</span>
+</div>
+<button style="background:var(--primary); color:white; border:none; width:30px; height:30px; border-radius:50%;">+</button>
+</div>
+`).join('');
+}
 
-    function verificarTroco() {
-        document.getElementById('area-troco').style.display = (document.getElementById('pagamento').value === 'Dinheiro') ? 'block' : 'none';
-    }
+function criarCategoria(titulo,lista){
 
-    function calcularTroco() {
-        const total = carrinho.reduce((sum, i) => sum + i.totalItem, 0);
-        const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
-        const info = document.getElementById('info-troco');
-        info.innerText = recebido > total ? `Troco: R$ ${(recebido - total).toFixed(2).replace('.',',')}` : "";
-    }
+return `
+<h4 style="margin:10px 0;">${titulo}</h4>
 
-    function abrirCheckout() {
-        if(carrinho.length === 0) return alert("Carrinho vazio!");
-        const resumo = document.getElementById('resumo');
-        resumo.innerHTML = carrinho.map(i => `
-            <div style="margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                <strong>${i.nome}</strong> - R$ ${i.totalItem.toFixed(2).replace('.',',')}<br>
-                <small>${i.detalhes || ''} ${i.obs ? '| Obs: ' + i.obs : ''}</small>
-            </div>
-        `).join('');
-        document.getElementById('checkout').style.display = 'block';
-    }
+${lista.map(e=>`
 
-    function fecharCheckout() { document.getElementById('checkout').style.display = 'none'; }
+<div class="opcao-item">
 
-    function enviarWhatsApp() {
-        const nome = document.getElementById('nome').value;
-        const endereco = document.getElementById('endereco').value;
-        const pag = document.getElementById('pagamento').value;
-        const total = carrinho.reduce((sum, i) => sum + i.totalItem, 0);
-        const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
+<label>
+<input type="checkbox" class="chk-extra" data-nome="${e.nome}" data-preco="${e.preco}">
+${e.nome}
+</label>
 
-        if(!nome || !endereco) return alert("Preencha Nome e Endereço!");
+<span>${e.preco>0?"+R$ "+e.preco.toFixed(2):"Grátis"}</span>
 
-        let msg = `*NOVO PEDIDO* 🛒\n\n`;
-        msg += `👤 *Cliente:* ${nome}\n`;
-        msg += `📍 *Endereço:* ${endereco}\n`;
-        msg += `--------------------------\n`;
-        
-        carrinho.forEach(i => {
-            msg += `✅ *${i.nome}*\n`;
-            if(i.detalhes) msg += `   + ${i.detalhes}\n`;
-            if(i.obs) msg += `   _Obs: ${i.obs}_\n`;
-            msg += `   Valor: R$ ${i.totalItem.toFixed(2).replace('.',',')}\n\n`;
-        });
+</div>
 
-        msg += `--------------------------\n`;
-        msg += `💰 *TOTAL: R$ ${total.toFixed(2).replace('.',',')}*\n`;
-        msg += `💳 *Pagamento:* ${pag}`;
-        
-        if(pag === 'Dinheiro' && recebido > total) {
-            msg += `\n💵 *Troco para:* R$ ${recebido.toFixed(2).replace('.',',')}`;
-            msg += `\n🪙 *Levar:* R$ ${(recebido - total).toFixed(2).replace('.',',')} de troco`;
-        }
+`).join('')}
+`;
 
-        const meuWhats = "556192015467"; 
-        const linkFinal = "https://api.whatsapp.com" + meuWhats + "&text=" + encodeURIComponent(msg);
-        
-        window.location.href = linkFinal;
-    }
+}
 
-    renderizar();
+function abrirModal(id){
+
+itemAtual=produtos.find(p=>p.id===id);
+
+document.getElementById('modal-titulo').innerText=itemAtual.nome;
+
+let html="";
+
+if(itemAtual.nome.toLowerCase().includes("cuscuz")){
+html+=criarCategoria("🥗 Vinagrete",categorias.vinagrete);
+}
+
+html+=criarCategoria("🥤 Bebidas",categorias.bebidas);
+
+html+=criarCategoria("➕ Complementos",categorias.complementos);
+
+document.getElementById('secao-extras').innerHTML=html;
+
+document.getElementById('modal-opcionais').style.display='flex';
+
+}
+
+function fecharModal(){
+document.getElementById('modal-opcionais').style.display='none';
+}
+
+function confirmarAdicao(){
+
+let vE=0;
+let nE=[];
+
+document.querySelectorAll('.chk-extra:checked').forEach(c=>{
+vE+=parseFloat(c.dataset.preco);
+nE.push(c.dataset.nome);
+});
+
+carrinho.push({
+nome:itemAtual.nome,
+total:itemAtual.preco+vE,
+detalhes:nE.join(', '),
+obs:document.getElementById('obs-item').value
+});
+
+document.getElementById('obs-item').value="";
+
+fecharModal();
+atualizarTotal();
+}
+
+function atualizarTotal(){
+const t=carrinho.reduce((s,i)=>s+i.total,0);
+document.getElementById('total-txt').innerText=`R$ ${t.toFixed(2)}`;
+}
+
+function abrirCheckout(){
+
+if(carrinho.length===0) return alert("Carrinho vazio!");
+
+document.getElementById('resumo').innerHTML=
+carrinho.map(i=>`
+<div style="margin-bottom:10px;">
+<strong>${i.nome}</strong><br>
+${i.detalhes ? "Extras: "+i.detalhes+"<br>" : ""}
+${i.obs ? "Obs: "+i.obs+"<br>" : ""}
+Valor: R$ ${i.total.toFixed(2)}
+</div>
+`).join('');
+
+document.getElementById('checkout').style.display='block';
+}
+
+function fecharCheckout(){
+document.getElementById('checkout').style.display='none';
+}
+
+function enviarWhatsApp(event){
+
+const n=document.getElementById('nome-cliente').value;
+const e=document.getElementById('end-cliente').value;
+const p=document.getElementById('pag-cliente').value;
+const t=document.getElementById('valor-troco').value;
+
+const total=carrinho.reduce((sum,i)=>sum+i.total,0);
+
+if(!n || !e){
+alert("Preencha Nome e Endereço!");
+event.preventDefault();
+return;
+}
+
+let msg=`*NOVO PEDIDO* 🛒\n\n👤 *Cliente:* ${n}\n📍 *Endereço:* ${e}\n--------------------------\n`;
+
+carrinho.forEach(i=>{
+msg+=`✅ *${i.nome}*\n${i.detalhes ? '  +' + i.detalhes + '\n' : ''}${i.obs ? '  _Obs: ' + i.obs + '_\n' : ''}  Valor: R$ ${i.total.toFixed(2)}\n\n`;
+});
+
+msg+=`--------------------------\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n💳 *Pagamento:* ${p}`;
+
+const fone="556192015467";
+
+document.getElementById('link-whatsapp').href=
+"https://api.whatsapp.com/send?phone="+fone+"&text="+encodeURIComponent(msg);
+
+}
+
+renderizar();
+
 </script>
+
 </body>
 </html>
