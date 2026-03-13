@@ -177,10 +177,10 @@
     }
 
     function abrirCheckout() {
-        if(carrinho.length === 0) return alert("Adicione itens primeiro!");
+        if(carrinho.length === 0) return alert("Carrinho vazio!");
         const resumo = document.getElementById('resumo');
         resumo.innerHTML = carrinho.map(i => `
-            <div style="margin-bottom:8px; border-bottom:1px solid #eee;">
+            <div style="margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
                 <strong>${i.nome}</strong> - R$ ${i.totalItem.toFixed(2).replace('.',',')}<br>
                 <small>${i.detalhes || ''} ${i.obs ? '| Obs: ' + i.obs : ''}</small>
             </div>
@@ -199,18 +199,31 @@
 
         if(!nome || !endereco) return alert("Preencha Nome e Endereço!");
 
-        let msg = `*NOVO PEDIDO* 🛒\n\n👤 *Cliente:* ${nome}\n📍 *Endereço:* ${endereco}\n--------------------------\n`;
+        let msg = `*NOVO PEDIDO* 🛒\n\n`;
+        msg += `👤 *Cliente:* ${nome}\n`;
+        msg += `📍 *Endereço:* ${endereco}\n`;
+        msg += `--------------------------\n`;
+        
         carrinho.forEach(i => {
-            msg += `✅ *${i.nome}* - R$ ${i.totalItem.toFixed(2)}\n${i.detalhes ? '   ' + i.detalhes + '\n' : ''}${i.obs ? '   _Obs: ' + i.obs + '_\n' : ''}\n`;
+            msg += `✅ *${i.nome}*\n`;
+            if(i.detalhes) msg += `   + ${i.detalhes}\n`;
+            if(i.obs) msg += `   _Obs: ${i.obs}_\n`;
+            msg += `   Valor: R$ ${i.totalItem.toFixed(2).replace('.',',')}\n\n`;
         });
-        msg += `--------------------------\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n💳 *Pagamento:* ${pag}`;
+
+        msg += `--------------------------\n`;
+        msg += `💰 *TOTAL: R$ ${total.toFixed(2).replace('.',',')}*\n`;
+        msg += `💳 *Pagamento:* ${pag}`;
         
         if(pag === 'Dinheiro' && recebido > total) {
-            msg += `\n💵 *Troco para:* R$ ${recebido.toFixed(2)}\n🪙 *Levar:* R$ ${(recebido - total).toFixed(2)} de troco`;
+            msg += `\n💵 *Troco para:* R$ ${recebido.toFixed(2).replace('.',',')}`;
+            msg += `\n🪙 *Levar:* R$ ${(recebido - total).toFixed(2).replace('.',',')} de troco`;
         }
 
         const meuWhats = "556192015467"; 
-        window.location.href = `https://api.whatsapp.com{meuWhats}&text=${encodeURIComponent(msg)}`;
+        const linkFinal = "https://api.whatsapp.com" + meuWhats + "&text=" + encodeURIComponent(msg);
+        
+        window.location.href = linkFinal;
     }
 
     renderizar();
