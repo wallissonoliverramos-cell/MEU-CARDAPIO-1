@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cuscuz & Tapioca Delivery</title>
-
 <style>
 :root { --primary:#ea1d2c; --bg:#f7f7f7; --green:#25d366; }
 *{ box-sizing:border-box; font-family:'Segoe UI',sans-serif; margin:0; padding:0; }
@@ -62,11 +61,28 @@ max-height:90vh;
 overflow-y:auto;
 }
 
+.categoria-header{
+font-weight:bold;
+margin:10px 0;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:8px 5px;
+background:#f0f0f0;
+border-radius:8px;
+}
+
+.categoria-itens{
+display:none;
+margin-bottom:10px;
+}
+
 .opcao-item{
 display:flex;
 justify-content:space-between;
-padding:10px 5px;
-border-bottom:1px solid #f0f0f0;
+padding:8px 5px;
+border-bottom:1px solid #eee;
 }
 
 .footer{
@@ -117,7 +133,6 @@ font-size:16px;
 }
 </style>
 </head>
-
 <body>
 
 <div id="tela-principal">
@@ -139,55 +154,36 @@ font-size:16px;
 
 <div id="modal-opcionais">
 <div class="modal-content">
-
 <h3 id="modal-titulo">Personalizar</h3>
-
 <div id="secao-extras" style="margin:20px 0;"></div>
-
 <textarea id="obs-item" class="input-estilizado" placeholder="Alguma observação?"></textarea>
-
 <div style="display:flex; gap:10px;">
 <button class="btn-modal" style="background:var(--primary);" onclick="fecharModal()">Voltar</button>
 <button class="btn-modal" style="background:var(--green);" onclick="confirmarAdicao()">Adicionar</button>
 </div>
-
 </div>
 </div>
 
 <div id="checkout">
-
 <button class="btn-modal" style="background:var(--primary); width:100%; margin-bottom:20px;" onclick="fecharCheckout()">⬅ Adicionar mais itens</button>
-
 <h2>Resumo do Pedido</h2>
-
 <div id="resumo" style="background:#f9f9f9; padding:15px; border-radius:12px; margin:15px 0;"></div>
-
 <input type="text" id="nome-cliente" class="input-estilizado" placeholder="Seu Nome">
-
 <input type="text" id="end-cliente" class="input-estilizado" placeholder="Endereço Completo">
-
 <select id="pag-cliente" class="input-estilizado" onchange="document.getElementById('area-troco').style.display=(this.value=='Dinheiro'?'block':'none')">
 <option value="PIX">PIX</option>
-<option value="Cartão">Cartão</option>
+<option value="Cartão">Cartão (Maquininha)</option>
 <option value="Dinheiro">Dinheiro</option>
 </select>
-
 <div id="area-troco" style="display:none;">
 <input type="number" id="valor-troco" class="input-estilizado" placeholder="Troco para quanto?">
 </div>
-
-<a id="link-whatsapp"
-href="#"
-class="btn-modal"
-style="background:var(--green); display:block; width:100%; font-size:18px;"
-onclick="enviarWhatsApp(event)">
+<a id="link-whatsapp" href="#" class="btn-modal" style="background:var(--green); display:block; width:100%; font-size:18px;" onclick="enviarWhatsApp(event)">
 🚀 Finalizar no WhatsApp
 </a>
-
 </div>
 
 <script>
-
 const produtos=[
 {id:1,nome:"Cuscuz Carne Seca",preco:18.0},
 {id:2,nome:"Cuscuz de Frango",preco:15.0},
@@ -195,23 +191,20 @@ const produtos=[
 {id:4,nome:"Tapioca Cartola",preco:14.0}
 ];
 
-const categorias={
-
-vinagrete:[
-{nome:"Com Vinagrete",preco:0},
-{nome:"Sem Vinagrete",preco:0}
+const categoriasPadrao={
+"Bebidas":[
+{name:"Achocolatado", preco:5.0},
+{name:"Café com Leite", preco:4.5},
+{name:"Café", preco:3.5}
 ],
-
-bebidas:[
-{nome:"Coca-Cola Lata",preco:6},
-{nome:"Guaraná Lata",preco:5}
+"Complementos":[
+{name:"Ovo Frito", preco:3.0},
+{name:"Queijo Coalho", preco:4.5}
 ],
-
-complementos:[
-{nome:"Ovo Frito",preco:3},
-{nome:"Queijo Coalho",preco:4.5}
+"Vinagrete":[
+{name:"Sim", preco:0},
+{name:"Não", preco:0}
 ]
-
 };
 
 let carrinho=[];
@@ -230,49 +223,31 @@ produtos.map(p=>`
 `).join('');
 }
 
-function criarCategoria(titulo,lista){
-
-return `
-<h4 style="margin:10px 0;">${titulo}</h4>
-
-${lista.map(e=>`
-
-<div class="opcao-item">
-
-<label>
-<input type="checkbox" class="chk-extra" data-nome="${e.nome}" data-preco="${e.preco}">
-${e.nome}
-</label>
-
-<span>${e.preco>0?"+R$ "+e.preco.toFixed(2):"Grátis"}</span>
-
-</div>
-
-`).join('')}
-`;
-
-}
-
 function abrirModal(id){
-
 itemAtual=produtos.find(p=>p.id===id);
-
 document.getElementById('modal-titulo').innerText=itemAtual.nome;
 
-let html="";
+let htmlCategorias="";
+for(const cat in categoriasPadrao){
+let itensCat = categoriasPadrao[cat];
+let itensHTML = itensCat.map(i=>`
+<div class="opcao-item">
+<label><input type="checkbox" class="chk-extra" data-nome="${i.name}" data-preco="${i.preco}"> ${i.name} ${cat!="Vinagrete"?"":""}</label>
+<span>${cat!="Vinagrete"?'+R$ '+i.preco.toFixed(2):''}</span>
+</div>`).join('');
 
-if(itemAtual.nome.toLowerCase().includes("cuscuz")){
-html+=criarCategoria("🥗 Vinagrete",categorias.vinagrete);
+htmlCategorias+=`
+<div class="categoria-header" onclick="toggleCategoria(this)">${cat} <span>▼</span></div>
+<div class="categoria-itens">${itensHTML}</div>`;
 }
 
-html+=criarCategoria("🥤 Bebidas",categorias.bebidas);
-
-html+=criarCategoria("➕ Complementos",categorias.complementos);
-
-document.getElementById('secao-extras').innerHTML=html;
-
+document.getElementById('secao-extras').innerHTML=htmlCategorias;
 document.getElementById('modal-opcionais').style.display='flex';
+}
 
+function toggleCategoria(el){
+const itens=el.nextElementSibling;
+itens.style.display=itens.style.display==="block"?"none":"block";
 }
 
 function fecharModal(){
@@ -280,10 +255,8 @@ document.getElementById('modal-opcionais').style.display='none';
 }
 
 function confirmarAdicao(){
-
 let vE=0;
 let nE=[];
-
 document.querySelectorAll('.chk-extra:checked').forEach(c=>{
 vE+=parseFloat(c.dataset.preco);
 nE.push(c.dataset.nome);
@@ -295,9 +268,6 @@ total:itemAtual.preco+vE,
 detalhes:nE.join(', '),
 obs:document.getElementById('obs-item').value
 });
-
-document.getElementById('obs-item').value="";
-
 fecharModal();
 atualizarTotal();
 }
@@ -308,19 +278,9 @@ document.getElementById('total-txt').innerText=`R$ ${t.toFixed(2)}`;
 }
 
 function abrirCheckout(){
-
 if(carrinho.length===0) return alert("Carrinho vazio!");
-
 document.getElementById('resumo').innerHTML=
-carrinho.map(i=>`
-<div style="margin-bottom:10px;">
-<strong>${i.nome}</strong><br>
-${i.detalhes ? "Extras: "+i.detalhes+"<br>" : ""}
-${i.obs ? "Obs: "+i.obs+"<br>" : ""}
-Valor: R$ ${i.total.toFixed(2)}
-</div>
-`).join('');
-
+carrinho.map(i=>`<div><strong>${i.nome}</strong> - R$ ${i.total.toFixed(2)}</div>`).join('');
 document.getElementById('checkout').style.display='block';
 }
 
@@ -329,37 +289,26 @@ document.getElementById('checkout').style.display='none';
 }
 
 function enviarWhatsApp(event){
-
 const n=document.getElementById('nome-cliente').value;
 const e=document.getElementById('end-cliente').value;
 const p=document.getElementById('pag-cliente').value;
 const t=document.getElementById('valor-troco').value;
-
 const total=carrinho.reduce((sum,i)=>sum+i.total,0);
 
-if(!n || !e){
-alert("Preencha Nome e Endereço!");
-event.preventDefault();
-return;
-}
+if(!n || !e){ alert("Preencha Nome e Endereço!"); event.preventDefault(); return; }
 
 let msg=`*NOVO PEDIDO* 🛒\n\n👤 *Cliente:* ${n}\n📍 *Endereço:* ${e}\n--------------------------\n`;
-
 carrinho.forEach(i=>{
 msg+=`✅ *${i.nome}*\n${i.detalhes ? '  +' + i.detalhes + '\n' : ''}${i.obs ? '  _Obs: ' + i.obs + '_\n' : ''}  Valor: R$ ${i.total.toFixed(2)}\n\n`;
 });
-
 msg+=`--------------------------\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n💳 *Pagamento:* ${p}`;
+if(p==='Dinheiro' && t>total) msg+=`\n💵 *Troco para:* R$ ${t}\n🪙 *Levar:* R$ ${(t-total).toFixed(2)}`;
 
 const fone="556192015467";
-
-document.getElementById('link-whatsapp').href=
-"https://api.whatsapp.com/send?phone="+fone+"&text="+encodeURIComponent(msg);
-
+document.getElementById('link-whatsapp').href="https://api.whatsapp.com/send?phone="+fone+"&text="+encodeURIComponent(msg);
 }
 
 renderizar();
-
 </script>
 
 </body>
