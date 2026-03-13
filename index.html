@@ -20,12 +20,12 @@
         .opcao-item { display: flex; justify-content: space-between; padding: 10px 5px; border-bottom: 1px solid #f0f0f0; align-items: center; }
         .obs-box { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px; margin-top: 10px; font-size: 14px; min-height: 60px; }
         .footer { position: fixed; bottom: 0; background: white; width: 100%; padding: 15px; border-top: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -5px 15px rgba(0,0,0,0.05); z-index: 100; }
-        .area-botoes-modal { display: flex; gap: 10px; margin-top: 20px; }
         .btn-modal { flex: 1; padding: 16px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 14px; color: white; }
-        .btn-voltar-modal { background: var(--primary); }
+        .btn-voltar-modal { background: #666; }
         .btn-confirmar-modal { background: var(--green); }
         #checkout { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 999; padding: 20px; overflow-y: auto; }
-        .btn-vermelho-full { background: var(--primary); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; margin-bottom: 20px; cursor: pointer; font-size: 16px; }
+        .input-estilizado { width:100%; padding:14px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px; font-size: 16px; }
+        #area-troco { display: none; background: #fffbe6; padding: 15px; border-radius: 12px; border: 1px solid #ffe58f; margin-bottom: 15px; }
     </style>
 </head>
 <body>
@@ -61,26 +61,35 @@
         </div>
         <div class="modal-secao">
             <h4>📝 Observação</h4>
-            <textarea id="obs-item" class="obs-box" placeholder="Ex: tirar a cebola, ponto do ovo..."></textarea>
+            <textarea id="obs-item" class="obs-box" placeholder="Ex: tirar a cebola..."></textarea>
         </div>
-        <div class="area-botoes-modal">
-            <button class="btn-modal btn-voltar-modal" onclick="fecharModal()">⬅ Voltar</button>
-            <button class="btn-modal btn-confirmar-modal" onclick="confirmarAdicao()">✅ Adicionar</button>
+        <div style="display:flex; gap:10px;">
+            <button class="btn-modal btn-voltar-modal" onclick="fecharModal()">Voltar</button>
+            <button class="btn-modal btn-confirmar-modal" onclick="confirmarAdicao()">Adicionar</button>
         </div>
     </div>
 </div>
 
 <div id="checkout">
-    <button class="btn-vermelho-full" onclick="fecharCheckout()">⬅ Adicionar mais itens</button>
+    <button class="btn-modal btn-voltar-modal" style="width:100%; margin-bottom:20px;" onclick="fecharCheckout()">⬅ Adicionar mais itens</button>
     <h2>Resumo do Pedido</h2>
     <div id="resumo" style="background:#f9f9f9; padding:15px; border-radius:12px; margin: 15px 0; border: 1px solid #eee;"></div>
-    <input type="text" id="nome" placeholder="Seu Nome" style="width:100%; padding:14px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px;">
-    <input type="text" id="endereco" placeholder="Endereço de Entrega" style="width:100%; padding:14px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px;">
-    <select id="pagamento" style="width:100%; padding:14px; margin-bottom:10px; border:1px solid #ddd; border-radius:10px;">
-        <option value="Dinheiro">Dinheiro</option>
+    
+    <input type="text" id="nome" class="input-estilizado" placeholder="Seu Nome">
+    <input type="text" id="endereco" class="input-estilizado" placeholder="Endereço Completo">
+    
+    <select id="pagamento" class="input-estilizado" onchange="verificarTroco()">
         <option value="PIX">PIX</option>
         <option value="Cartão">Cartão (Maquininha)</option>
+        <option value="Dinheiro">Dinheiro</option>
     </select>
+
+    <div id="area-troco">
+        <label style="font-size: 13px; font-weight:bold;">Troco para quanto?</label>
+        <input type="number" id="valor-recebido" class="input-estilizado" oninput="calcularTroco()" placeholder="Ex: 50">
+        <p id="info-troco" style="font-weight:bold; color: #2e7d32;"></p>
+    </div>
+
     <button class="btn-modal btn-confirmar-modal" style="width: 100%; font-size: 18px;" onclick="enviarWhatsApp()">🚀 Finalizar no WhatsApp</button>
 </div>
 
@@ -104,20 +113,27 @@
             document.getElementById('lista-' + cat).innerHTML = produtos.filter(p => p.cat === cat).map(p => `
                 <div class="item-card" onclick="abrirModal(${p.id})">
                     <div><strong>${p.nome}</strong><br><span class="price">R$ ${p.preco.toFixed(2).replace('.',',')}</span></div>
-                    <button style="background:var(--primary); color:white; border:none; width:35px; height:35px; border-radius:50%; cursor:pointer; font-size: 20px;">+</button>
+                    <button style="background:var(--primary); color:white; border:none; width:35px; height:35px; border-radius:50%; font-size: 20px;">+</button>
                 </div>
             `).join('');
         });
-        atualizarTotal();
     }
 
     function abrirModal(id) {
         itemAtual = produtos.find(p => p.id === id);
         document.getElementById('modal-titulo').innerText = itemAtual.nome;
-        document.getElementById('obs-item').value = ""; 
-        const areaVinagrete = document.getElementById('area-vinagrete');
-        areaVinagrete.style.display = itemAtual.cat === 'cuscuz' ? 'block' : 'none';
-        const gerarHtml = (lista) => lista.map(opt => `<div class="opcao-item"><label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" data-preco="${opt.preco}" data-nome="${opt.nome}" class="chk-extra"> ${opt.nome}</label><span>${opt.preco === 0 ? 'Grátis' : '+ R$ ' + opt.preco.toFixed(2).replace('.',',')}</span></div>`).join('');
+        document.getElementById('obs-item').value = "";
+        document.getElementById('area-vinagrete').style.display = itemAtual.cat === 'cuscuz' ? 'block' : 'none';
+        
+        const gerarHtml = (lista) => lista.map(opt => `
+            <div class="opcao-item">
+                <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">
+                    <input type="checkbox" data-preco="${opt.preco}" data-nome="${opt.nome}" class="chk-extra"> ${opt.nome}
+                </label>
+                <span>${opt.preco === 0 ? 'Grátis' : '+ R$ ' + opt.preco.toFixed(2).replace('.',',')}</span>
+            </div>
+        `).join('');
+        
         document.getElementById('secao-vinagrete').innerHTML = gerarHtml(vinagreteOpc);
         document.getElementById('secao-complementos').innerHTML = gerarHtml(complementosOpc);
         document.getElementById('secao-bebidas').innerHTML = gerarHtml(bebidasOpc);
@@ -127,64 +143,74 @@
     function fecharModal() { document.getElementById('modal-opcionais').style.display = 'none'; }
 
     function confirmarAdicao() {
-        let escolhidos = [];
-        let totalExtras = 0;
-        document.querySelectorAll('.chk-extra:checked').forEach(c => {
-            escolhidos.push(c.getAttribute('data-nome'));
-            totalExtras += parseFloat(c.getAttribute('data-preco'));
+        const extras = [];
+        let valorExtras = 0;
+        document.querySelectorAll('.chk-extra:checked').forEach(chk => {
+            extras.push(chk.dataset.nome);
+            valorExtras += parseFloat(chk.dataset.preco);
         });
-        carrinho.push({ nome: itemAtual.nome, extras: escolhidos, obs: document.getElementById('obs-item').value, total: itemAtual.preco + totalExtras });
-        atualizarTotal();
+
+        carrinho.push({
+            nome: itemAtual.nome,
+            totalItem: itemAtual.preco + valorExtras,
+            detalhes: extras.join(', '),
+            obs: document.getElementById('obs-item').value
+        });
         fecharModal();
+        atualizarTotal();
     }
 
     function atualizarTotal() {
-        let total = carrinho.reduce((s, i) => s + i.total, 0);
+        const total = carrinho.reduce((sum, i) => sum + i.totalItem, 0);
         document.getElementById('total-txt').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
     }
 
+    function verificarTroco() {
+        document.getElementById('area-troco').style.display = (document.getElementById('pagamento').value === 'Dinheiro') ? 'block' : 'none';
+    }
+
+    function calcularTroco() {
+        const total = carrinho.reduce((sum, i) => sum + i.totalItem, 0);
+        const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
+        const info = document.getElementById('info-troco');
+        info.innerText = recebido > total ? `Troco: R$ ${(recebido - total).toFixed(2).replace('.',',')}` : "";
+    }
+
     function abrirCheckout() {
-        if(carrinho.length === 0) return alert("Carrinho vazio!");
-        document.getElementById('tela-principal').style.display = 'none';
+        if(carrinho.length === 0) return alert("Adicione itens primeiro!");
+        const resumo = document.getElementById('resumo');
+        resumo.innerHTML = carrinho.map(i => `
+            <div style="margin-bottom:8px; border-bottom:1px solid #eee;">
+                <strong>${i.nome}</strong> - R$ ${i.totalItem.toFixed(2).replace('.',',')}<br>
+                <small>${i.detalhes || ''} ${i.obs ? '| Obs: ' + i.obs : ''}</small>
+            </div>
+        `).join('');
         document.getElementById('checkout').style.display = 'block';
-        document.getElementById('resumo').innerHTML = carrinho.map((i, idx) => `<div style="border-bottom:1px solid #eee; padding:10px 0;"><strong>${i.nome}</strong> <span onclick="remover(${idx})" style="color:red; float:right; cursor:pointer; font-weight:bold;">[Remover]</span><br><small style="color:#666">Extras: ${i.extras.join(', ') || 'Nenhum'}</small>${i.obs ? '<br><small style="color:#ea1d2c">Obs: ' + i.obs + '</small>' : ''}<br><strong>R$ ${i.total.toFixed(2).replace('.',',')}</strong></div>`).join('') + `<div style="margin-top:15px; text-align:right;"><strong>Total: ${document.getElementById('total-txt').innerText}</strong></div>`;
     }
 
-    function remover(idx) {
-        carrinho.splice(idx, 1);
-        abrirCheckout();
-        atualizarTotal();
-        if(carrinho.length === 0) fecharCheckout();
-    }
-
-    function fecharCheckout() {
-        document.getElementById('tela-principal').style.display = 'block';
-        document.getElementById('checkout').style.display = 'none';
-    }
+    function fecharCheckout() { document.getElementById('checkout').style.display = 'none'; }
 
     function enviarWhatsApp() {
         const nome = document.getElementById('nome').value;
-        const end = document.getElementById('endereco').value;
+        const endereco = document.getElementById('endereco').value;
         const pag = document.getElementById('pagamento').value;
-        const zap = "5561992015467"; // Seu número configurado
+        const total = carrinho.reduce((sum, i) => sum + i.totalItem, 0);
+        const recebido = parseFloat(document.getElementById('valor-recebido').value) || 0;
 
-        if(!nome || !end) return alert("Preencha nome e endereço!");
+        if(!nome || !endereco) return alert("Preencha Nome e Endereço!");
 
-        let pedidoTexto = carrinho.map(i => {
-            let extras = i.extras.length > 0 ? `\n_Extras: ${i.extras.join(', ')}_` : "";
-            let obs = i.obs ? `\n_Obs: ${i.obs}_` : "";
-            return `✅ *${i.nome}*${extras}${obs}\nSubtotal: R$ ${i.total.toFixed(2).replace('.',',')}`;
-        }).join('\n\n');
+        let msg = `*NOVO PEDIDO* 🛒\n\n👤 *Cliente:* ${nome}\n📍 *Endereço:* ${endereco}\n--------------------------\n`;
+        carrinho.forEach(i => {
+            msg += `✅ *${i.nome}* - R$ ${i.totalItem.toFixed(2)}\n${i.detalhes ? '   ' + i.detalhes + '\n' : ''}${i.obs ? '   _Obs: ' + i.obs + '_\n' : ''}\n`;
+        });
+        msg += `--------------------------\n💰 *TOTAL: R$ ${total.toFixed(2)}*\n💳 *Pagamento:* ${pag}`;
+        
+        if(pag === 'Dinheiro' && recebido > total) {
+            msg += `\n💵 *Troco para:* R$ ${recebido.toFixed(2)}\n🪙 *Levar:* R$ ${(recebido - total).toFixed(2)} de troco`;
+        }
 
-        let totalFinal = document.getElementById('total-txt').innerText;
-        let mensagemFinal = `*NOVO PEDIDO*\n\n👤 *Cliente:* ${nome}\n📍 *End:* ${end}\n💳 *Pag:* ${pag}\n\n*ITENS:*\n${pedidoTexto}\n\n💰 *TOTAL: ${totalFinal}*`;
-
-        // DETECTA SE É CELULAR OU PC E ABRE O LINK CORRETO
-        const isMobile = /iPhone|Android/i.test(navigator.userAgent);
-        const baseUrl = isMobile ? "https://api.whatsapp.com" : "https://web.whatsapp.com";
-        const finalUrl = `${baseUrl}?phone=${zap}&text=${encodeURIComponent(mensagemFinal)}`;
-
-        window.open(finalUrl, '_blank');
+        const meuWhats = "556192015467"; 
+        window.location.href = `https://api.whatsapp.com{meuWhats}&text=${encodeURIComponent(msg)}`;
     }
 
     renderizar();
